@@ -37,10 +37,29 @@ function insertIntoTable(tableName, columns, values) {
     console.log(`Row inserted with rowid ${this.lastID}`);
   });
 }
+const validTables = ["users", "orders", "products"]; // Add your valid table names here
 
 function selectFromTable(table) {
+  if (!validTables.includes(table)) {
+    throw new Error(`Invalid table name: ${table}`);
+  }
   // query the rows in the langs table
   db.all(`SELECT * FROM ${table}`, [], (err, rows) => {
+    if (err) {
+      throw err;
+    }
+    rows.forEach((row) => {
+      console.log(row);
+    });
+  });
+}
+
+function selectFromTableId(table, id) {
+  if (!validTables.includes(table)) {
+    throw new Error(`Invalid table name: ${table}`);
+  }
+
+  db.all(`SELECT * FROM ${table} WHERE id = ?`, [id], (err, rows) => {
     if (err) {
       throw err;
     }
@@ -61,22 +80,20 @@ function closeConnection() {
 }
 
 function dropTable(tableName) {
-    const sql = `DROP TABLE IF EXISTS ${tableName}`;
+  const sql = `DROP TABLE IF EXISTS ${tableName}`;
 
-    db.run(sql, (err) => {
-        if (err) {
-            console.error(err.message);
-        } else {
-            console.log("Table dropped successfully.");
-        }
-    });
+  db.run(sql, (err) => {
+    if (err) {
+      console.error(err.message);
+    } else {
+      console.log("Table dropped successfully.");
+    }
+  });
 }
 
 // ...
-selectFromTable("users");
 
 createTable("users", [
-
   { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
   { name: "name", type: "text" },
   { name: "email", type: "text" },
@@ -86,4 +103,5 @@ insertIntoTable(
   ["name", "email"],
   ["Silvio Correa", "silviorodrigues98@hotmail.com"]
 );
-selectFromTable("users");
+
+selectFromTableId("users", "5");
