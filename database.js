@@ -9,6 +9,8 @@ let db = new sqlite3.Database(
   sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE
 );
 
+const validTables = ["users", "orders", "products"]; // Add your valid table names here
+
 function createTable(tableName, params) {
   const columns = params
     .map((param) => `${param.name} ${param.type}`)
@@ -37,35 +39,32 @@ function insertIntoTable(tableName, columns, values) {
     console.log(`Row inserted with rowid ${this.lastID}`);
   });
 }
-const validTables = ["users", "orders", "products"]; // Add your valid table names here
 
-function selectFromTable(table) {
+function selectFromTable(table, callback) {
   if (!validTables.includes(table)) {
     throw new Error(`Invalid table name: ${table}`);
   }
-  // query the rows in the langs table
-  db.all(`SELECT * FROM ${table}`, [], (err, rows) => {
+
+  db.all(`SELECT * FROM ${table}`, (err, rows) => {
     if (err) {
-      throw err;
+      callback(err);
+    } else {
+      callback(null, rows);
     }
-    rows.forEach((row) => {
-      console.log(row);
-    });
   });
 }
 
-function selectFromTableId(table, id) {
+function selectFromTableId(table, id, callback) {
   if (!validTables.includes(table)) {
     throw new Error(`Invalid table name: ${table}`);
   }
 
   db.all(`SELECT * FROM ${table} WHERE id = ?`, [id], (err, rows) => {
     if (err) {
-      throw err;
+      callback(err);
+    } else {
+      callback(null, rows);
     }
-    rows.forEach((row) => {
-      console.log(row);
-    });
   });
 }
 
@@ -91,17 +90,9 @@ function dropTable(tableName) {
   });
 }
 
-// ...
-
-createTable("users", [
-  { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
-  { name: "name", type: "text" },
-  { name: "email", type: "text" },
-]);
-insertIntoTable(
-  "users",
-  ["name", "email"],
-  ["Silvio Correa", "silviorodrigues98@hotmail.com"]
-);
-
-selectFromTableId("users", "5");
+module.exports = {
+  createTable,
+  insertIntoTable,
+  selectFromTable,
+  selectFromTableId,
+};
