@@ -60,6 +60,21 @@ function closeConnection() {
   });
 }
 
+function dropTable(tableName) {
+    const sql = `DROP TABLE IF EXISTS ${tableName}`;
+
+    db.run(sql, (err) => {
+        if (err) {
+            console.error(err.message);
+        } else {
+            console.log("Table dropped successfully.");
+        }
+    });
+}
+
+// ...
+selectFromTable("users");
+
 createTable("users", [
 
   { name: "id", type: "INTEGER PRIMARY KEY AUTOINCREMENT" },
